@@ -103,7 +103,7 @@ supabase/
 
 ## Tech Stack
 
-- Expo SDK 57 + React Native
+- Expo SDK 54 + React Native 0.81
 - Supabase (auth + PostgreSQL)
 - AsyncStorage (local persistence)
 - React Navigation

@@ -29,6 +29,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "primaryColor": "#6366F1"
+    "primaryColor": "#6366F1",
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
