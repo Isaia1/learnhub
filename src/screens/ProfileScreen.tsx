@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '../context/ProgressContext';
+import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/colors';
 import StreakBadge from '../components/StreakBadge';
 
@@ -10,24 +11,53 @@ const menuItems = [
   { icon: 'notifications-outline', label: 'Notifications', color: colors.primary },
   { icon: 'settings-outline', label: 'Settings', color: colors.textSecondary },
   { icon: 'help-circle-outline', label: 'Help & Support', color: colors.textSecondary },
-  { icon: 'document-text-outline', label: 'Terms of Service', color: colors.textSecondary },
-  { icon: 'shield-checkmark-outline', label: 'Privacy Policy', color: colors.textSecondary },
 ] as const;
+
+function getInitials(name: string | null, email: string | null): string {
+  if (name) {
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  }
+  if (email) return email.slice(0, 2).toUpperCase();
+  return 'LH';
+}
 
 export default function ProfileScreen() {
   const { progress } = useProgress();
+  const { user, profile, signOut, isDemoMode } = useAuth();
+
+  const displayName = profile?.displayName ?? (isDemoMode ? 'Guest Learner' : 'Learner');
+  const email = user?.email ?? (isDemoMode ? 'Demo mode — sign in to sync progress' : '');
+  const initials = getInitials(profile?.displayName ?? null, user?.email ?? null);
+
+  const handleLogout = () => {
+    Alert.alert('Log Out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Log Out', style: 'destructive', onPress: signOut },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>JD</Text>
+            <Text style={styles.avatarText}>{initials}</Text>
           </View>
-          <Text style={styles.name}>John Doe</Text>
-          <Text style={styles.email}>john.doe@example.com</Text>
+          <Text style={styles.name}>{displayName}</Text>
+          <Text style={styles.email}>{email}</Text>
           <StreakBadge streak={progress.streak} />
         </View>
+
+        {isDemoMode && (
+          <View style={styles.demoBanner}>
+            <Ionicons name="information-circle" size={20} color={colors.primary} />
+            <Text style={styles.demoText}>
+              Demo mode — add Supabase keys in .env to enable sign-in and cloud sync.
+            </Text>
+          </View>
+        )}
 
         <View style={styles.xpCard}>
           <Ionicons name="star" size={24} color={colors.accent} />
@@ -47,10 +77,12 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.logoutButton}>
-          <Ionicons name="log-out-outline" size={20} color={colors.error} />
-          <Text style={styles.logoutText}>Log Out</Text>
-        </TouchableOpacity>
+        {!isDemoMode && user && (
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={20} color={colors.error} />
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -92,6 +124,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     marginBottom: 12,
+    textAlign: 'center',
+  },
+  demoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.primary + '10',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 20,
+  },
+  demoText: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.primary,
+    lineHeight: 18,
   },
   xpCard: {
     flexDirection: 'row',

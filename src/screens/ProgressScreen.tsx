@@ -2,14 +2,15 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useCourses } from '../context/CoursesContext';
 import { useProgress } from '../context/ProgressContext';
-import { courses } from '../data/mockData';
 import { colors } from '../theme/colors';
 import ProgressBar from '../components/ProgressBar';
 import StreakBadge from '../components/StreakBadge';
 
 export default function ProgressScreen() {
   const { progress, getCourseProgress } = useProgress();
+  const { courses } = useCourses();
 
   const totalLessons = courses.reduce((sum, c) => sum + c.lessons.length, 0);
   const overallProgress = totalLessons > 0

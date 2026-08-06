@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { courses } from '../data/mockData';
+import { useCourses } from '../context/CoursesContext';
 import { useProgress } from '../context/ProgressContext';
 import { colors } from '../theme/colors';
 import FlashcardComponent from '../components/Flashcard';
@@ -17,7 +17,8 @@ type Props = {
 
 export default function FlashcardsScreen({ navigation, route }: Props) {
   const { courseId } = route.params;
-  const course = courses.find((c) => c.id === courseId);
+  const { getCourseById } = useCourses();
+  const course = getCourseById(courseId);
   const { masterFlashcard, progress } = useProgress();
 
   const [currentIndex, setCurrentIndex] = useState(0);

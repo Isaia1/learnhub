@@ -1,3 +1,8 @@
+export type AuthStackParamList = {
+  Login: undefined;
+  SignUp: undefined;
+};
+
 export type RootStackParamList = {
   MainTabs: undefined;
   CourseDetail: { courseId: string };

@@ -5,7 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useProgress } from '../context/ProgressContext';
-import { courses } from '../data/mockData';
+import { useCourses } from '../context/CoursesContext';
+import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/colors';
 import StreakBadge from '../components/StreakBadge';
 import CourseCard from '../components/CourseCard';
@@ -17,7 +18,10 @@ type Props = {
 
 export default function HomeScreen({ navigation }: Props) {
   const { progress, getCourseProgress } = useProgress();
+  const { courses } = useCourses();
+  const { profile, user } = useAuth();
   const featuredCourses = courses.slice(0, 3);
+  const firstName = profile?.displayName?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'Learner';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -25,7 +29,7 @@ export default function HomeScreen({ navigation }: Props) {
         <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.header}>
           <View style={styles.headerTop}>
             <View>
-              <Text style={styles.greeting}>Welcome back! 👋</Text>
+              <Text style={styles.greeting}>Welcome back, {firstName}! 👋</Text>
               <Text style={styles.subGreeting}>Ready to learn something new?</Text>
             </View>
             <StreakBadge streak={progress.streak} />

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useProgress } from '../context/ProgressContext';
-import { courses } from '../data/mockData';
+import { useCourses } from '../context/CoursesContext';
 import { colors } from '../theme/colors';
 import CourseCard from '../components/CourseCard';
 import { RootStackParamList } from '../navigation/types';
@@ -14,6 +14,7 @@ type Props = {
 
 export default function CoursesScreen({ navigation }: Props) {
   const { getCourseProgress } = useProgress();
+  const { courses } = useCourses();
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

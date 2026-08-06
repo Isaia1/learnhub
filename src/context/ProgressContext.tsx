@@ -1,8 +1,11 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { UserProgress } from '../types';
+import { useAuth } from './AuthContext';
+import { loadProgress, persistProgress } from '../services/progressService';
 
 interface ProgressContextType {
   progress: UserProgress;
+  loading: boolean;
   completeLesson: (lessonId: string) => void;
   saveQuizScore: (courseId: string, score: number) => void;
   masterFlashcard: (flashcardId: string) => void;
@@ -10,58 +13,110 @@ interface ProgressContextType {
   getCourseProgress: (lessonIds: string[]) => number;
 }
 
-const defaultProgress: UserProgress = {
-  completedLessons: [],
-  quizScores: {},
-  masteredFlashcards: [],
-  streak: 3,
-  lastActiveDate: new Date().toISOString().split('T')[0],
-  totalXP: 150,
-};
-
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
 
+function getYesterday(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().split('T')[0];
+}
+
 export function ProgressProvider({ children }: { children: ReactNode }) {
-  const [progress, setProgress] = useState<UserProgress>(defaultProgress);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const [progress, setProgress] = useState<UserProgress>({
+    completedLessons: [],
+    quizScores: {},
+    masteredFlashcards: [],
+    streak: 0,
+    lastActiveDate: new Date().toISOString().split('T')[0],
+    totalXP: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const completeLesson = useCallback((lessonId: string) => {
-    setProgress((prev) => {
-      if (prev.completedLessons.includes(lessonId)) return prev;
-      const today = new Date().toISOString().split('T')[0];
-      const newStreak =
-        prev.lastActiveDate === today
-          ? prev.streak
-          : prev.lastActiveDate === getYesterday()
-            ? prev.streak + 1
-            : 1;
-      return {
-        ...prev,
-        completedLessons: [...prev.completedLessons, lessonId],
-        totalXP: prev.totalXP + 25,
-        streak: newStreak,
-        lastActiveDate: today,
-      };
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    loadProgress(userId).then((data) => {
+      if (active) {
+        setProgress(data);
+        setLoading(false);
+      }
     });
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [userId]);
 
-  const saveQuizScore = useCallback((courseId: string, score: number) => {
-    setProgress((prev) => ({
-      ...prev,
-      quizScores: { ...prev.quizScores, [courseId]: Math.max(prev.quizScores[courseId] ?? 0, score) },
-      totalXP: prev.totalXP + score * 10,
-    }));
-  }, []);
+  const scheduleSave = useCallback(
+    (next: UserProgress) => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(() => {
+        persistProgress(userId, next);
+      }, 500);
+    },
+    [userId]
+  );
 
-  const masterFlashcard = useCallback((flashcardId: string) => {
-    setProgress((prev) => {
-      if (prev.masteredFlashcards.includes(flashcardId)) return prev;
-      return {
+  const updateProgress = useCallback(
+    (updater: (prev: UserProgress) => UserProgress) => {
+      setProgress((prev) => {
+        const next = updater(prev);
+        scheduleSave(next);
+        return next;
+      });
+    },
+    [scheduleSave]
+  );
+
+  const completeLesson = useCallback(
+    (lessonId: string) => {
+      updateProgress((prev) => {
+        if (prev.completedLessons.includes(lessonId)) return prev;
+        const today = new Date().toISOString().split('T')[0];
+        const newStreak =
+          prev.lastActiveDate === today
+            ? prev.streak
+            : prev.lastActiveDate === getYesterday()
+              ? prev.streak + 1
+              : 1;
+        return {
+          ...prev,
+          completedLessons: [...prev.completedLessons, lessonId],
+          totalXP: prev.totalXP + 25,
+          streak: newStreak,
+          lastActiveDate: today,
+        };
+      });
+    },
+    [updateProgress]
+  );
+
+  const saveQuizScore = useCallback(
+    (courseId: string, score: number) => {
+      updateProgress((prev) => ({
         ...prev,
-        masteredFlashcards: [...prev.masteredFlashcards, flashcardId],
-        totalXP: prev.totalXP + 5,
-      };
-    });
-  }, []);
+        quizScores: { ...prev.quizScores, [courseId]: Math.max(prev.quizScores[courseId] ?? 0, score) },
+        totalXP: prev.totalXP + score * 10,
+      }));
+    },
+    [updateProgress]
+  );
+
+  const masterFlashcard = useCallback(
+    (flashcardId: string) => {
+      updateProgress((prev) => {
+        if (prev.masteredFlashcards.includes(flashcardId)) return prev;
+        return {
+          ...prev,
+          masteredFlashcards: [...prev.masteredFlashcards, flashcardId],
+          totalXP: prev.totalXP + 5,
+        };
+      });
+    },
+    [updateProgress]
+  );
 
   const isLessonComplete = useCallback(
     (lessonId: string) => progress.completedLessons.includes(lessonId),
@@ -79,7 +134,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   return (
     <ProgressContext.Provider
-      value={{ progress, completeLesson, saveQuizScore, masterFlashcard, isLessonComplete, getCourseProgress }}
+      value={{ progress, loading, completeLesson, saveQuizScore, masterFlashcard, isLessonComplete, getCourseProgress }}
     >
       {children}
     </ProgressContext.Provider>
@@ -90,10 +145,4 @@ export function useProgress() {
   const context = useContext(ProgressContext);
   if (!context) throw new Error('useProgress must be used within ProgressProvider');
   return context;
-}
-
-function getYesterday(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
 }

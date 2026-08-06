@@ -2,10 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { liveClasses } from '../data/mockData';
+import { useCourses } from '../context/CoursesContext';
 import { colors, subjectColors } from '../theme/colors';
 
 export default function LiveClassesScreen() {
+  const { liveClasses } = useCourses();
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

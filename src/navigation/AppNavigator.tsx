@@ -4,7 +4,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
-import { RootStackParamList, TabParamList } from './types';
+import { useAuth } from '../context/AuthContext';
+import { RootStackParamList, TabParamList, AuthStackParamList } from './types';
 
 import HomeScreen from '../screens/HomeScreen';
 import CoursesScreen from '../screens/CoursesScreen';
@@ -15,9 +16,13 @@ import CourseDetailScreen from '../screens/CourseDetailScreen';
 import LessonScreen from '../screens/LessonScreen';
 import QuizScreen from '../screens/QuizScreen';
 import FlashcardsScreen from '../screens/FlashcardsScreen';
+import LoginScreen from '../screens/LoginScreen';
+import SignUpScreen from '../screens/SignUpScreen';
+import LoadingScreen from '../components/LoadingScreen';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
 function MainTabs() {
   return (
@@ -58,23 +63,44 @@ function MainTabs() {
   );
 }
 
+function MainStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.surface },
+        headerTintColor: colors.text,
+        headerTitleStyle: { fontWeight: '700' },
+        headerShadowVisible: false,
+      }}
+    >
+      <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="CourseDetail" component={CourseDetailScreen} options={{ title: 'Course' }} />
+      <Stack.Screen name="Lesson" component={LessonScreen} options={{ title: 'Lesson' }} />
+      <Stack.Screen name="Quiz" component={QuizScreen} options={{ title: 'Quiz' }} />
+      <Stack.Screen name="Flashcards" component={FlashcardsScreen} options={{ title: 'Flashcards' }} />
+    </Stack.Navigator>
+  );
+}
+
+function AuthNavigator() {
+  return (
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="SignUp" component={SignUpScreen} />
+    </AuthStack.Navigator>
+  );
+}
+
 export default function AppNavigator() {
+  const { user, loading, isDemoMode } = useAuth();
+
+  if (loading) return <LoadingScreen />;
+
+  const showMainApp = isDemoMode || user;
+
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: { backgroundColor: colors.surface },
-          headerTintColor: colors.text,
-          headerTitleStyle: { fontWeight: '700' },
-          headerShadowVisible: false,
-        }}
-      >
-        <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
-        <Stack.Screen name="CourseDetail" component={CourseDetailScreen} options={{ title: 'Course' }} />
-        <Stack.Screen name="Lesson" component={LessonScreen} options={{ title: 'Lesson' }} />
-        <Stack.Screen name="Quiz" component={QuizScreen} options={{ title: 'Quiz' }} />
-        <Stack.Screen name="Flashcards" component={FlashcardsScreen} options={{ title: 'Flashcards' }} />
-      </Stack.Navigator>
+      {showMainApp ? <MainStack /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }

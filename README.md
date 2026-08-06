@@ -4,70 +4,115 @@ A full-featured education app built with **Expo (React Native)** that runs on **
 
 ## Features
 
-- **Courses & Lessons** — Browse subjects, read lesson content, track completion
-- **Quizzes** — Multiple-choice questions with instant feedback and explanations
-- **Flashcards** — Flip cards to study, mark cards as mastered
-- **Live Classes** — View scheduled and live tutoring sessions
-- **Progress Tracking** — XP, streaks, per-course progress, and quiz scores
-- **Profile** — User stats, settings, and account management
+- **User Authentication** — Sign up and sign in with email (via Supabase)
+- **Courses & Lessons** — Real course content stored in Supabase
+- **Quizzes** — Multiple-choice with instant feedback and explanations
+- **Flashcards** — Flip cards, mark as mastered
+- **Live Classes** — Scheduled and live tutoring sessions
+- **Progress Tracking** — XP, streaks, per-course progress (saved locally + cloud)
+- **Custom Branding** — LearnHub theme, splash screen, app identity
 
-## Getting Started
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18+)
-- [Expo Go](https://expo.dev/go) app on your phone (for quick testing)
-- Xcode (for iOS simulator) or Android Studio (for Android emulator)
-
-### Install & Run
+## Quick Start
 
 ```bash
 npm install
 npm start
 ```
 
-Then press:
-- `i` — Open iOS simulator
-- `a` — Open Android emulator
-- `w` — Open in web browser
-- Scan the QR code with Expo Go on your phone
+Press `i` (iOS), `a` (Android), or scan the QR code with Expo Go.
 
-### Build for App Stores
+**Without Supabase:** The app runs in demo mode with local sample data and progress saved on your device.
+
+## Supabase Setup (Auth + Cloud Sync)
+
+### 1. Create a Supabase project
+
+1. Go to [supabase.com](https://supabase.com) and create a free account
+2. Create a new project
+3. Go to **Settings → API** and copy:
+   - **Project URL**
+   - **anon public** key
+
+### 2. Configure environment variables
 
 ```bash
-# Install EAS CLI
-npm install -g eas-cli
-
-# Configure and build
-eas build --platform ios
-eas build --platform android
+cp .env.example .env
 ```
+
+Edit `.env`:
+
+```
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+```
+
+### 3. Run the database schema
+
+1. In Supabase, go to **SQL Editor**
+2. Paste the contents of `supabase/schema.sql`
+3. Click **Run**
+
+This creates all tables, security policies, and seeds course content.
+
+### 4. Enable email auth
+
+In Supabase: **Authentication → Providers → Email** — make sure it's enabled.
+
+For development, you can disable email confirmation under **Authentication → Settings**.
+
+### 5. Restart the app
+
+```bash
+npm start
+```
+
+You'll see the sign-in screen. Create an account and your progress syncs across devices.
+
+## Saving Progress
+
+Progress is saved in two places:
+- **AsyncStorage** — instant, works offline
+- **Supabase** — syncs when signed in (lessons, quizzes, flashcards, XP, streaks)
+
+## Push to GitHub
+
+```bash
+git add .
+git commit -m "Add auth, Supabase, and progress persistence"
+git push
+```
+
+Never commit your `.env` file — it's in `.gitignore`.
 
 ## Project Structure
 
 ```
 src/
-├── components/     # Reusable UI (CourseCard, Flashcard, ProgressBar, etc.)
-├── context/        # Progress state management
-├── data/           # Mock course & live class data
+├── components/     # UI components (Logo, CourseCard, Flashcard, etc.)
+├── context/        # Auth, Courses, Progress state
+├── data/           # Local fallback course data
+├── lib/            # Supabase client & config
 ├── navigation/     # Tab + stack navigation
-├── screens/        # All app screens
-├── theme/          # Colors and styling
+├── screens/        # All app screens including Login/SignUp
+├── services/       # Course fetching & progress persistence
+├── theme/          # LearnHub brand colors
 └── types/          # TypeScript interfaces
+supabase/
+└── schema.sql      # Database schema + seed data
 ```
 
 ## Tech Stack
 
-- **Expo SDK 57** — Cross-platform framework
-- **React Native** — Native mobile UI
-- **React Navigation** — Tab and stack navigation
-- **TypeScript** — Type safety
+- Expo SDK 57 + React Native
+- Supabase (auth + PostgreSQL)
+- AsyncStorage (local persistence)
+- React Navigation
+- TypeScript
 
-## Next Steps
+## Build for App Stores
 
-- Add user authentication (Firebase, Supabase, or Auth0)
-- Connect a backend API for real course content
-- Add video playback for lessons (expo-av)
-- Implement real-time live classes (WebRTC or Zoom SDK)
-- Persist progress with AsyncStorage or a cloud database
-- Push notifications for streaks and live class reminders
+```bash
+npm install -g eas-cli
+eas build --platform ios
+eas build --platform android
+```

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { courses } from '../data/mockData';
+import { useCourses } from '../context/CoursesContext';
 import { useProgress } from '../context/ProgressContext';
 import { colors } from '../theme/colors';
 import { RootStackParamList } from '../navigation/types';
@@ -16,7 +16,8 @@ type Props = {
 
 export default function LessonScreen({ navigation, route }: Props) {
   const { courseId, lessonId } = route.params;
-  const course = courses.find((c) => c.id === courseId);
+  const { getCourseById } = useCourses();
+  const course = getCourseById(courseId);
   const lesson = course?.lessons.find((l) => l.id === lessonId);
   const { completeLesson, isLessonComplete } = useProgress();
   const [completed, setCompleted] = useState(isLessonComplete(lessonId));
