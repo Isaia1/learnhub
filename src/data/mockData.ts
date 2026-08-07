@@ -1,4 +1,4 @@
-import { Course, LiveClass } from '../types';
+import { Course } from '../types';
 
 export const courses: Course[] = [
   {
@@ -183,48 +183,5 @@ export const courses: Course[] = [
       { id: 'history-world-f1', front: 'Renaissance', back: 'A period of cultural rebirth in Europe (14th–17th c.)' },
       { id: 'history-world-f2', front: 'Humanism', back: 'Philosophy emphasizing human potential and achievement' },
     ],
-  },
-];
-
-export const liveClasses: LiveClass[] = [
-  {
-    id: 'live-1',
-    title: 'Algebra Q&A Session',
-    instructor: 'Dr. Sarah Chen',
-    subject: 'math',
-    scheduledAt: 'Today, 3:00 PM',
-    duration: 45,
-    participants: 24,
-    isLive: true,
-  },
-  {
-    id: 'live-2',
-    title: 'Physics Lab Demo',
-    instructor: 'Prof. James Miller',
-    subject: 'science',
-    scheduledAt: 'Today, 5:30 PM',
-    duration: 60,
-    participants: 18,
-    isLive: false,
-  },
-  {
-    id: 'live-3',
-    title: 'JavaScript Workshop',
-    instructor: 'Alex Rivera',
-    subject: 'coding',
-    scheduledAt: 'Tomorrow, 10:00 AM',
-    duration: 90,
-    participants: 42,
-    isLive: false,
-  },
-  {
-    id: 'live-4',
-    title: 'History Discussion: Renaissance',
-    instructor: 'Dr. Emily Watson',
-    subject: 'history',
-    scheduledAt: 'Tomorrow, 2:00 PM',
-    duration: 50,
-    participants: 15,
-    isLive: false,
   },
 ];

@@ -33,17 +33,6 @@ export interface Course {
   totalLessons: number;
 }
 
-export interface LiveClass {
-  id: string;
-  title: string;
-  instructor: string;
-  subject: string;
-  scheduledAt: string;
-  duration: number;
-  participants: number;
-  isLive: boolean;
-}
-
 export interface UserProgress {
   completedLessons: string[];
   quizScores: Record<string, number>;

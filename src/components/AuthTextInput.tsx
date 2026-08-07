@@ -33,9 +33,9 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceSolid,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.glassBorder,
     borderRadius: 12,
     padding: 14,
     fontSize: 16,

@@ -25,7 +25,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconWrap: {
-    backgroundColor: colors.primary,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,

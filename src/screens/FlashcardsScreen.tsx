@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import AnimatedScreen from '../components/AnimatedScreen';
+import FadeInView from '../components/FadeInView';
+import AnimatedPressable from '../components/AnimatedPressable';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -26,9 +28,9 @@ export default function FlashcardsScreen({ navigation, route }: Props) {
 
   if (!course || course.flashcards.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <AnimatedScreen style={styles.container}>
         <Text style={styles.emptyText}>No flashcards available for this course.</Text>
-      </SafeAreaView>
+      </AnimatedScreen>
     );
   }
 
@@ -54,7 +56,7 @@ export default function FlashcardsScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <AnimatedScreen style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
         <Text style={styles.counter}>
           {currentIndex + 1} / {course.flashcards.length}
@@ -88,14 +90,13 @@ export default function FlashcardsScreen({ navigation, route }: Props) {
           </TouchableOpacity>
         </View>
       )}
-    </SafeAreaView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',

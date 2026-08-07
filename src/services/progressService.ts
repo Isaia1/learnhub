@@ -11,11 +11,11 @@ const defaultProgress = (): UserProgress => ({
   totalXP: 0,
 });
 
-function storageKey(userId: string | null) {
-  return userId ? `@learnhub_progress_${userId}` : '@learnhub_progress_guest';
+function storageKey(userId: string) {
+  return `@learnhub_progress_${userId}`;
 }
 
-export async function loadLocalProgress(userId: string | null): Promise<UserProgress> {
+export async function loadLocalProgress(userId: string): Promise<UserProgress> {
   try {
     const raw = await AsyncStorage.getItem(storageKey(userId));
     if (raw) return JSON.parse(raw) as UserProgress;
@@ -25,7 +25,7 @@ export async function loadLocalProgress(userId: string | null): Promise<UserProg
   return defaultProgress();
 }
 
-export async function saveLocalProgress(userId: string | null, progress: UserProgress): Promise<void> {
+export async function saveLocalProgress(userId: string, progress: UserProgress): Promise<void> {
   await AsyncStorage.setItem(storageKey(userId), JSON.stringify(progress));
 }
 
@@ -55,7 +55,7 @@ export async function saveRemoteProgress(userId: string, progress: UserProgress)
   const supabase = getSupabase();
   if (!supabase) return;
 
-  await supabase.from('user_progress').upsert({
+  const { error } = await supabase.from('user_progress').upsert({
     user_id: userId,
     completed_lessons: progress.completedLessons,
     quiz_scores: progress.quizScores,
@@ -65,15 +65,18 @@ export async function saveRemoteProgress(userId: string, progress: UserProgress)
     total_xp: progress.totalXP,
     updated_at: new Date().toISOString(),
   });
+
+  if (error) {
+    console.warn('Failed to sync progress to cloud:', error.message);
+  }
 }
 
-export async function loadProgress(userId: string | null): Promise<UserProgress> {
+export async function loadProgress(userId: string): Promise<UserProgress> {
   const local = await loadLocalProgress(userId);
-  if (!userId) return local;
-
   const remote = await loadRemoteProgress(userId);
+
   if (!remote) {
-    await saveRemoteProgress(userId, local);
+    if (getSupabase()) await saveRemoteProgress(userId, local);
     return local;
   }
 
@@ -90,7 +93,7 @@ export async function loadProgress(userId: string | null): Promise<UserProgress>
   return merged;
 }
 
-export async function persistProgress(userId: string | null, progress: UserProgress): Promise<void> {
+export async function persistProgress(userId: string, progress: UserProgress): Promise<void> {
   await saveLocalProgress(userId, progress);
-  if (userId) await saveRemoteProgress(userId, progress);
+  await saveRemoteProgress(userId, progress);
 }

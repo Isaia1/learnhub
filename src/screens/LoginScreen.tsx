@@ -9,7 +9,8 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import AnimatedScreen from '../components/AnimatedScreen';
+import FadeInView from '../components/FadeInView';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/colors';
@@ -41,12 +42,16 @@ export default function LoginScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <AnimatedScreen>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <FadeInView>
           <Logo />
+          </FadeInView>
+          <FadeInView delay={100}>
           <Text style={styles.heading}>Welcome back</Text>
           <Text style={styles.subheading}>Sign in to continue learning</Text>
+          </FadeInView>
 
           {error ? <Text style={styles.errorBanner}>{error}</Text> : null}
 
@@ -67,6 +72,7 @@ export default function LoginScreen({ navigation }: Props) {
             placeholder="Your password"
           />
 
+          <FadeInView delay={200}>
           <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} disabled={loading}>
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
@@ -74,6 +80,7 @@ export default function LoginScreen({ navigation }: Props) {
               <Text style={styles.primaryButtonText}>Sign In</Text>
             )}
           </TouchableOpacity>
+          </FadeInView>
 
           <TouchableOpacity onPress={() => navigation.navigate('SignUp')} style={styles.linkRow}>
             <Text style={styles.linkText}>Don't have an account? </Text>
@@ -81,15 +88,11 @@ export default function LoginScreen({ navigation }: Props) {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   flex: {
     flex: 1,
   },
@@ -121,7 +124,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   primaryButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
     borderRadius: 14,
     padding: 16,
     alignItems: 'center',
@@ -144,6 +149,6 @@ const styles = StyleSheet.create({
   linkAction: {
     fontSize: 14,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.primaryLight,
   },
 });

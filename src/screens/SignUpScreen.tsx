@@ -9,7 +9,8 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import AnimatedScreen from '../components/AnimatedScreen';
+import FadeInView from '../components/FadeInView';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/colors';
@@ -22,7 +23,7 @@ type Props = {
 };
 
 export default function SignUpScreen({ navigation }: Props) {
-  const { signUp } = useAuth();
+  const { signUp, usesCloudSync } = useAuth();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,17 +48,23 @@ export default function SignUpScreen({ navigation }: Props) {
     if (signUpError) {
       setError(signUpError);
     } else {
-      setSuccess('Account created! Check your email to confirm, then sign in.');
+      setSuccess(
+        usesCloudSync
+          ? 'Account created! Check your email to confirm, then sign in.'
+          : 'Account created! You are signed in.'
+      );
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <AnimatedScreen>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Logo size="sm" />
+          <FadeInView><Logo size="sm" /></FadeInView>
+          <FadeInView delay={100}>
           <Text style={styles.heading}>Create account</Text>
           <Text style={styles.subheading}>Start your learning journey today</Text>
+          </FadeInView>
 
           {error ? <Text style={styles.errorBanner}>{error}</Text> : null}
           {success ? <Text style={styles.successBanner}>{success}</Text> : null}
@@ -100,15 +107,11 @@ export default function SignUpScreen({ navigation }: Props) {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   flex: {
     flex: 1,
   },
@@ -149,7 +152,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   primaryButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
     borderRadius: 14,
     padding: 16,
     alignItems: 'center',
@@ -172,6 +177,6 @@ const styles = StyleSheet.create({
   linkAction: {
     fontSize: 14,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.primaryLight,
   },
 });

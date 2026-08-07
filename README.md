@@ -8,7 +8,6 @@ A full-featured education app built with **Expo (React Native)** that runs on **
 - **Courses & Lessons** — Real course content stored in Supabase
 - **Quizzes** — Multiple-choice with instant feedback and explanations
 - **Flashcards** — Flip cards, mark as mastered
-- **Live Classes** — Scheduled and live tutoring sessions
 - **Progress Tracking** — XP, streaks, per-course progress (saved locally + cloud)
 - **Custom Branding** — LearnHub theme, splash screen, app identity
 

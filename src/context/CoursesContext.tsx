@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Course, LiveClass } from '../types';
-import { fetchCourses, fetchLiveClasses } from '../services/coursesService';
-import { courses as mockCourses, liveClasses as mockLiveClasses } from '../data/mockData';
+import { Course } from '../types';
+import { courses as mockCourses } from '../data/mockData';
+import { fetchCourses } from '../services/coursesService';
 
 interface CoursesContextType {
   courses: Course[];
-  liveClasses: LiveClass[];
   loading: boolean;
   getCourseById: (id: string) => Course | undefined;
   refresh: () => Promise<void>;
@@ -15,15 +14,13 @@ const CoursesContext = createContext<CoursesContextType | undefined>(undefined);
 
 export function CoursesProvider({ children }: { children: ReactNode }) {
   const [courses, setCourses] = useState<Course[]>(mockCourses);
-  const [liveClasses, setLiveClasses] = useState<LiveClass[]>(mockLiveClasses);
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
     setLoading(true);
     try {
-      const [fetchedCourses, fetchedLive] = await Promise.all([fetchCourses(), fetchLiveClasses()]);
+      const fetchedCourses = await fetchCourses();
       setCourses(fetchedCourses);
-      setLiveClasses(fetchedLive);
     } finally {
       setLoading(false);
     }
@@ -36,7 +33,7 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
   const getCourseById = (id: string) => courses.find((c) => c.id === id);
 
   return (
-    <CoursesContext.Provider value={{ courses, liveClasses, loading, getCourseById, refresh: load }}>
+    <CoursesContext.Provider value={{ courses, loading, getCourseById, refresh: load }}>
       {children}
     </CoursesContext.Provider>
   );

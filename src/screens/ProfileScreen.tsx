@@ -1,14 +1,23 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '../context/ProgressContext';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/colors';
 import StreakBadge from '../components/StreakBadge';
+import AnimatedScreen from '../components/AnimatedScreen';
+import TabScrollView from '../components/TabScrollView';
+
+import FadeInView from '../components/FadeInView';
+
+const glass = {
+  backgroundColor: colors.surfaceSolid,
+  borderWidth: 1,
+  borderColor: colors.glassBorder,
+};
 
 const menuItems = [
-  { icon: 'notifications-outline', label: 'Notifications', color: colors.primary },
+  { icon: 'notifications-outline', label: 'Notifications', color: colors.primaryLight },
   { icon: 'settings-outline', label: 'Settings', color: colors.textSecondary },
   { icon: 'help-circle-outline', label: 'Help & Support', color: colors.textSecondary },
 ] as const;
@@ -25,10 +34,10 @@ function getInitials(name: string | null, email: string | null): string {
 
 export default function ProfileScreen() {
   const { progress } = useProgress();
-  const { user, profile, signOut, isDemoMode } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
-  const displayName = profile?.displayName ?? (isDemoMode ? 'Guest Learner' : 'Learner');
-  const email = user?.email ?? (isDemoMode ? 'Demo mode — sign in to sync progress' : '');
+  const displayName = profile?.displayName ?? 'Learner';
+  const email = user?.email ?? '';
   const initials = getInitials(profile?.displayName ?? null, user?.email ?? null);
 
   const handleLogout = () => {
@@ -39,149 +48,78 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.profileHeader}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
+    <AnimatedScreen edges={['top']}>
+      <TabScrollView contentContainerStyle={styles.content}>
+        <FadeInView>
+          <View style={styles.profileHeader}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{initials}</Text>
+            </View>
+            <Text style={styles.name}>{displayName}</Text>
+            <Text style={styles.email}>{email}</Text>
+            <StreakBadge streak={progress.streak} />
           </View>
-          <Text style={styles.name}>{displayName}</Text>
-          <Text style={styles.email}>{email}</Text>
-          <StreakBadge streak={progress.streak} />
-        </View>
+        </FadeInView>
 
-        {isDemoMode && (
-          <View style={styles.demoBanner}>
-            <Ionicons name="information-circle" size={20} color={colors.primary} />
-            <Text style={styles.demoText}>
-              Demo mode — add Supabase keys in .env to enable sign-in and cloud sync.
-            </Text>
+        <FadeInView delay={150}>
+          <View style={[styles.xpCard, glass]}>
+            <Ionicons name="star" size={24} color={colors.accent} />
+            <View style={styles.xpInfo}>
+              <Text style={styles.xpValue}>{progress.totalXP} XP</Text>
+              <Text style={styles.xpLabel}>Level {Math.floor(progress.totalXP / 100) + 1} Learner</Text>
+            </View>
           </View>
-        )}
+        </FadeInView>
 
-        <View style={styles.xpCard}>
-          <Ionicons name="star" size={24} color={colors.accent} />
-          <View style={styles.xpInfo}>
-            <Text style={styles.xpValue}>{progress.totalXP} XP</Text>
-            <Text style={styles.xpLabel}>Level {Math.floor(progress.totalXP / 100) + 1} Learner</Text>
+        <FadeInView delay={220}>
+          <View style={[styles.menu, glass]}>
+            {menuItems.map((item) => (
+              <TouchableOpacity key={item.label} style={styles.menuItem}>
+                <Ionicons name={item.icon} size={22} color={item.color} />
+                <Text style={styles.menuLabel}>{item.label}</Text>
+                <Ionicons name="chevron-forward" size={18} color={colors.textLight} />
+              </TouchableOpacity>
+            ))}
           </View>
-        </View>
+        </FadeInView>
 
-        <View style={styles.menu}>
-          {menuItems.map((item) => (
-            <TouchableOpacity key={item.label} style={styles.menuItem}>
-              <Ionicons name={item.icon} size={22} color={item.color} />
-              <Text style={styles.menuLabel}>{item.label}</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.textLight} />
+        {user && (
+          <FadeInView delay={300}>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Ionicons name="log-out-outline" size={20} color={colors.error} />
+              <Text style={styles.logoutText}>Log Out</Text>
             </TouchableOpacity>
-          ))}
-        </View>
-
-        {!isDemoMode && user && (
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={20} color={colors.error} />
-            <Text style={styles.logoutText}>Log Out</Text>
-          </TouchableOpacity>
+          </FadeInView>
         )}
-      </ScrollView>
-    </SafeAreaView>
+      </TabScrollView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 20,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
+  content: { padding: 20 },
+  profileHeader: { alignItems: 'center', marginBottom: 24 },
   avatar: {
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: colors.primary,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 2,
+    borderColor: colors.glassBorder,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
   },
-  avatarText: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  email: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  demoBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: colors.primary + '10',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 20,
-  },
-  demoText: {
-    flex: 1,
-    fontSize: 13,
-    color: colors.primary,
-    lineHeight: 18,
-  },
-  xpCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    gap: 16,
-  },
-  xpInfo: {
-    flex: 1,
-  },
-  xpValue: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: colors.text,
-  },
-  xpLabel: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  menu: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: 24,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    gap: 14,
-  },
-  menuLabel: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text,
-  },
+  avatarText: { fontSize: 32, fontWeight: '800', color: colors.text },
+  name: { fontSize: 24, fontWeight: '800', color: colors.text, marginBottom: 4 },
+  email: { fontSize: 14, color: colors.textSecondary, marginBottom: 12, textAlign: 'center' },
+  xpCard: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, padding: 20, marginBottom: 24, gap: 16 },
+  xpInfo: { flex: 1 },
+  xpValue: { fontSize: 22, fontWeight: '800', color: colors.text },
+  xpLabel: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+  menu: { borderRadius: 16, overflow: 'hidden', marginBottom: 24 },
+  menuItem: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: colors.border, gap: 14 },
+  menuLabel: { flex: 1, fontSize: 16, color: colors.text },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -190,11 +128,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: colors.error + '30',
+    borderColor: 'rgba(252,165,165,0.4)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.error,
-  },
+  logoutText: { fontSize: 16, fontWeight: '600', color: colors.error },
 });

@@ -1,14 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { useCourses } from '../context/CoursesContext';
 import { useProgress } from '../context/ProgressContext';
 import { colors } from '../theme/colors';
+import AnimatedScreen from '../components/AnimatedScreen';
+import FadeInView from '../components/FadeInView';
+import AnimatedPressable from '../components/AnimatedPressable';
 import ProgressBar from '../components/ProgressBar';
 import { RootStackParamList } from '../navigation/types';
+
+const glass = {
+  backgroundColor: colors.surfaceSolid,
+  borderWidth: 1,
+  borderColor: colors.glassBorder,
+};
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'CourseDetail'>;
@@ -23,9 +31,9 @@ export default function CourseDetailScreen({ navigation, route }: Props) {
 
   if (!course) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text>Course not found</Text>
-      </SafeAreaView>
+      <AnimatedScreen>
+        <Text style={{ color: colors.text, textAlign: 'center', marginTop: 40 }}>Course not found</Text>
+      </AnimatedScreen>
     );
   }
 
@@ -33,9 +41,10 @@ export default function CourseDetailScreen({ navigation, route }: Props) {
   const quizScore = progress.quizScores[course.id];
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={[styles.header, { backgroundColor: course.color }]}>
+    <AnimatedScreen edges={['bottom']}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: 8 }}>
+        <FadeInView>
+        <View style={[styles.header, glass, { borderColor: course.color + '60' }]}>
           <View style={styles.headerIcon}>
             <Ionicons name={course.icon as keyof typeof Ionicons.glyphMap} size={40} color="#FFF" />
           </View>
@@ -49,15 +58,18 @@ export default function CourseDetailScreen({ navigation, route }: Props) {
             <ProgressBar progress={courseProgress} color="#FFFFFF" />
           </View>
         </View>
+        </FadeInView>
 
         <View style={styles.section}>
+          <FadeInView delay={100}>
           <Text style={styles.sectionTitle}>Lessons</Text>
+          </FadeInView>
           {course.lessons.map((lesson, index) => {
             const complete = isLessonComplete(lesson.id);
             return (
-              <TouchableOpacity
-                key={lesson.id}
-                style={styles.lessonItem}
+              <FadeInView key={lesson.id} delay={150 + index * 60}>
+              <AnimatedPressable
+                style={[styles.lessonItem, glass]}
                 onPress={() => navigation.navigate('Lesson', { courseId, lessonId: lesson.id })}
               >
                 <View style={[styles.lessonNumber, complete && { backgroundColor: colors.success + '20' }]}>
@@ -72,15 +84,19 @@ export default function CourseDetailScreen({ navigation, route }: Props) {
                   <Text style={styles.lessonDuration}>{lesson.duration} min</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
-              </TouchableOpacity>
+              </AnimatedPressable>
+              </FadeInView>
             );
           })}
         </View>
 
         <View style={styles.section}>
+          <FadeInView delay={300}>
           <Text style={styles.sectionTitle}>Practice</Text>
-          <TouchableOpacity
-            style={styles.practiceCard}
+          </FadeInView>
+          <FadeInView delay={350}>
+          <AnimatedPressable
+            style={[styles.practiceCard, glass]}
             onPress={() => navigation.navigate('Quiz', { courseId })}
           >
             <View style={[styles.practiceIcon, { backgroundColor: colors.primary + '15' }]}>
@@ -94,10 +110,12 @@ export default function CourseDetailScreen({ navigation, route }: Props) {
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
-          </TouchableOpacity>
+          </AnimatedPressable>
+          </FadeInView>
 
-          <TouchableOpacity
-            style={styles.practiceCard}
+          <FadeInView delay={420}>
+          <AnimatedPressable
+            style={[styles.practiceCard, glass]}
             onPress={() => navigation.navigate('Flashcards', { courseId })}
           >
             <View style={[styles.practiceIcon, { backgroundColor: colors.accent + '15' }]}>
@@ -108,28 +126,26 @@ export default function CourseDetailScreen({ navigation, route }: Props) {
               <Text style={styles.practiceDesc}>{course.flashcards.length} cards to review</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
-          </TouchableOpacity>
+          </AnimatedPressable>
+          </FadeInView>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   header: {
+    margin: 20,
+    marginBottom: 8,
     padding: 24,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    borderRadius: 24,
   },
   headerIcon: {
     width: 72,
     height: 72,
     borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -137,12 +153,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 26,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
     marginBottom: 8,
   },
   headerDesc: {
     fontSize: 15,
-    color: 'rgba(255,255,255,0.85)',
+    color: colors.textSecondary,
     lineHeight: 22,
     marginBottom: 20,
   },
@@ -158,12 +174,12 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.8)',
+    color: colors.textSecondary,
   },
   progressPercent: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   section: {
     padding: 20,
@@ -177,7 +193,6 @@ const styles = StyleSheet.create({
   lessonItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 14,
     marginBottom: 8,
@@ -186,7 +201,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -212,7 +227,6 @@ const styles = StyleSheet.create({
   practiceCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
     borderRadius: 14,
     padding: 16,
     marginBottom: 10,

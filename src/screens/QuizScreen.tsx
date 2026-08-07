@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import AnimatedScreen from '../components/AnimatedScreen';
+import FadeInView from '../components/FadeInView';
+import AnimatedPressable from '../components/AnimatedPressable';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -29,9 +31,9 @@ export default function QuizScreen({ navigation, route }: Props) {
 
   if (!course || course.quizzes.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <AnimatedScreen style={styles.container}>
         <Text style={styles.emptyText}>No quiz available for this course.</Text>
-      </SafeAreaView>
+      </AnimatedScreen>
     );
   }
 
@@ -62,7 +64,7 @@ export default function QuizScreen({ navigation, route }: Props) {
   if (finished) {
     const finalScore = Math.round((score / course.quizzes.length) * 100);
     return (
-      <SafeAreaView style={styles.container}>
+      <AnimatedScreen style={styles.container}>
         <View style={styles.resultContainer}>
           <Ionicons
             name={finalScore >= 70 ? 'trophy' : 'ribbon'}
@@ -78,12 +80,12 @@ export default function QuizScreen({ navigation, route }: Props) {
             <Text style={styles.doneButtonText}>Back to Course</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </AnimatedScreen>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <AnimatedScreen style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
         <Text style={styles.questionCount}>
           Question {currentIndex + 1} of {course.quizzes.length}
@@ -144,14 +146,13 @@ export default function QuizScreen({ navigation, route }: Props) {
           </TouchableOpacity>
         </View>
       )}
-    </SafeAreaView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
     padding: 20,
@@ -176,12 +177,12 @@ const styles = StyleSheet.create({
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceSolid,
     borderRadius: 14,
     padding: 16,
     marginBottom: 10,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.glassBorder,
   },
   optionSelected: {
     borderColor: colors.primary,

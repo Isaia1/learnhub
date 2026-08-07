@@ -1,23 +1,26 @@
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 import Logo from './Logo';
+import AnimatedScreen from './AnimatedScreen';
+import FadeInView from './FadeInView';
 
 export default function LoadingScreen() {
   return (
-    <View style={styles.container}>
-      <Logo />
-      <ActivityIndicator size="large" color={colors.primary} style={styles.spinner} />
-    </View>
+    <AnimatedScreen edges={[]}>
+      <FadeInView style={styles.center}>
+        <Logo />
+        <ActivityIndicator size="large" color={colors.primaryLight} style={styles.spinner} />
+      </FadeInView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.background,
     gap: 32,
   },
   spinner: {

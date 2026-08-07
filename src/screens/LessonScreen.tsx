@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { useCourses } from '../context/CoursesContext';
 import { useProgress } from '../context/ProgressContext';
+import AnimatedScreen from '../components/AnimatedScreen';
+import FadeInView from '../components/FadeInView';
+import AnimatedPressable from '../components/AnimatedPressable';
 import { colors } from '../theme/colors';
 import { RootStackParamList } from '../navigation/types';
 
@@ -24,9 +26,9 @@ export default function LessonScreen({ navigation, route }: Props) {
 
   if (!course || !lesson) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text>Lesson not found</Text>
-      </SafeAreaView>
+      <AnimatedScreen>
+        <Text style={{ color: colors.text, textAlign: 'center', marginTop: 40 }}>Lesson not found</Text>
+      </AnimatedScreen>
     );
   }
 
@@ -45,25 +47,22 @@ export default function LessonScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <AnimatedScreen edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <FadeInView>
         <View style={styles.meta}>
-          <View style={[styles.badge, { backgroundColor: course.color + '15' }]}>
+          <View style={[styles.badge, { backgroundColor: course.color + '30' }]}>
             <Text style={[styles.badgeText, { color: course.color }]}>{course.title}</Text>
           </View>
           <Text style={styles.duration}>{lesson.duration} min read</Text>
         </View>
 
         <Text style={styles.title}>{lesson.title}</Text>
+        </FadeInView>
 
-        {lesson.videoUrl && (
-          <View style={styles.videoPlaceholder}>
-            <Ionicons name="play-circle" size={64} color={colors.primary} />
-            <Text style={styles.videoText}>Video lesson</Text>
-          </View>
-        )}
-
+        <FadeInView delay={150}>
         <Text style={styles.contentText}>{lesson.content}</Text>
+        </FadeInView>
       </ScrollView>
 
       <View style={styles.footer}>
@@ -73,24 +72,20 @@ export default function LessonScreen({ navigation, route }: Props) {
             <Text style={styles.completedText}>Lesson completed</Text>
           </View>
         ) : (
-          <TouchableOpacity style={[styles.completeButton, { backgroundColor: course.color }]} onPress={handleComplete}>
+          <AnimatedPressable style={[styles.completeButton, { backgroundColor: course.color }]} onPress={handleComplete}>
             <Text style={styles.completeButtonText}>Mark as Complete</Text>
             <Ionicons name="arrow-forward" size={20} color="#FFF" />
-          </TouchableOpacity>
+          </AnimatedPressable>
         )}
       </View>
-    </SafeAreaView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   content: {
     padding: 24,
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   meta: {
     flexDirection: 'row',
@@ -142,9 +137,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: colors.surface,
+    backgroundColor: 'rgba(255,255,255,0.12)',
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: colors.glassBorder,
   },
   completeButton: {
     flexDirection: 'row',

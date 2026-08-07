@@ -36,6 +36,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
     let active = true;
     setLoading(true);
     loadProgress(userId).then((data) => {
@@ -51,6 +56,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   const scheduleSave = useCallback(
     (next: UserProgress) => {
+      if (!userId) return;
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => {
         persistProgress(userId, next);

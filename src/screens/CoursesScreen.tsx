@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, StyleSheet } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useProgress } from '../context/ProgressContext';
 import { useCourses } from '../context/CoursesContext';
 import { colors } from '../theme/colors';
 import CourseCard from '../components/CourseCard';
+import AnimatedScreen from '../components/AnimatedScreen';
+import FadeInView from '../components/FadeInView';
+import TabScrollView from '../components/TabScrollView';
 import { RootStackParamList } from '../navigation/types';
 
 type Props = {
@@ -17,28 +19,27 @@ export default function CoursesScreen({ navigation }: Props) {
   const { courses } = useCourses();
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>All Courses</Text>
-        <Text style={styles.subtitle}>Pick a subject and start learning</Text>
-        {courses.map((course) => (
+    <AnimatedScreen edges={['top']}>
+      <TabScrollView contentContainerStyle={styles.content}>
+        <FadeInView>
+          <Text style={styles.title}>All Courses</Text>
+          <Text style={styles.subtitle}>Pick a subject and start learning</Text>
+        </FadeInView>
+        {courses.map((course, index) => (
           <CourseCard
             key={course.id}
             course={course}
             progress={getCourseProgress(course.lessons.map((l) => l.id))}
             onPress={() => navigation.navigate('CourseDetail', { courseId: course.id })}
+            index={index + 1}
           />
         ))}
-      </ScrollView>
-    </SafeAreaView>
+      </TabScrollView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   content: {
     padding: 20,
   },

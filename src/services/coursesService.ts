@@ -1,5 +1,5 @@
-import { Course, LiveClass } from '../types';
-import { courses as mockCourses, liveClasses as mockLiveClasses } from '../data/mockData';
+import { Course } from '../types';
+import { courses as mockCourses } from '../data/mockData';
 import { getSupabase } from '../lib/supabase';
 
 interface DbCourse {
@@ -38,17 +38,6 @@ interface DbFlashcard {
   sort_order: number;
 }
 
-interface DbLiveClass {
-  id: string;
-  title: string;
-  instructor: string;
-  subject: string;
-  scheduled_at: string;
-  duration: number;
-  participants: number;
-  is_live: boolean;
-}
-
 export async function fetchCourses(): Promise<Course[]> {
   const supabase = getSupabase();
   if (!supabase) return mockCourses;
@@ -59,7 +48,6 @@ export async function fetchCourses(): Promise<Course[]> {
     .order('sort_order');
 
   if (courseError || !courseRows?.length) {
-    console.warn('Falling back to local course data:', courseError?.message);
     return mockCourses;
   }
 
@@ -108,27 +96,4 @@ export async function fetchCourses(): Promise<Course[]> {
       })),
     };
   });
-}
-
-export async function fetchLiveClasses(): Promise<LiveClass[]> {
-  const supabase = getSupabase();
-  if (!supabase) return mockLiveClasses;
-
-  const { data, error } = await supabase.from('live_classes').select('*').order('scheduled_at');
-
-  if (error || !data?.length) {
-    console.warn('Falling back to local live class data:', error?.message);
-    return mockLiveClasses;
-  }
-
-  return (data as DbLiveClass[]).map((lc) => ({
-    id: lc.id,
-    title: lc.title,
-    instructor: lc.instructor,
-    subject: lc.subject,
-    scheduledAt: lc.scheduled_at,
-    duration: lc.duration,
-    participants: lc.participants,
-    isLive: lc.is_live,
-  }));
 }
