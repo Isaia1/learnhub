@@ -1,5 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const USERS_KEY = '@learnhub_local_users';
 const SESSION_KEY = '@learnhub_local_session';
 
@@ -15,8 +13,8 @@ export interface LocalSession {
   email: string;
 }
 
-async function readUsers(): Promise<LocalAccount[]> {
-  const raw = await AsyncStorage.getItem(USERS_KEY);
+function readUsers(): LocalAccount[] {
+  const raw = localStorage.getItem(USERS_KEY);
   if (!raw) return [];
   try {
     return JSON.parse(raw) as LocalAccount[];
@@ -25,16 +23,16 @@ async function readUsers(): Promise<LocalAccount[]> {
   }
 }
 
-async function writeUsers(users: LocalAccount[]): Promise<void> {
-  await AsyncStorage.setItem(USERS_KEY, JSON.stringify(users));
+function writeUsers(users: LocalAccount[]): void {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
 function createId(): string {
   return `local_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export async function getLocalSession(): Promise<LocalSession | null> {
-  const raw = await AsyncStorage.getItem(SESSION_KEY);
+export function getLocalSession(): LocalSession | null {
+  const raw = localStorage.getItem(SESSION_KEY);
   if (!raw) return null;
   try {
     return JSON.parse(raw) as LocalSession;
@@ -43,17 +41,17 @@ export async function getLocalSession(): Promise<LocalSession | null> {
   }
 }
 
-export async function clearLocalSession(): Promise<void> {
-  await AsyncStorage.removeItem(SESSION_KEY);
+export function clearLocalSession(): void {
+  localStorage.removeItem(SESSION_KEY);
 }
 
-export async function localSignUp(
+export function localSignUp(
   email: string,
   password: string,
   displayName: string
-): Promise<{ error: string | null; session: LocalSession | null }> {
+): { error: string | null; session: LocalSession | null } {
   const normalizedEmail = email.trim().toLowerCase();
-  const users = await readUsers();
+  const users = readUsers();
 
   if (users.some((u) => u.email === normalizedEmail)) {
     return { error: 'An account with this email already exists. Try signing in.', session: null };
@@ -67,19 +65,19 @@ export async function localSignUp(
   };
 
   users.push(account);
-  await writeUsers(users);
+  writeUsers(users);
 
   const session = { userId: account.id, email: account.email };
-  await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   return { error: null, session };
 }
 
-export async function localSignIn(
+export function localSignIn(
   email: string,
   password: string
-): Promise<{ error: string | null; session: LocalSession | null }> {
+): { error: string | null; session: LocalSession | null } {
   const normalizedEmail = email.trim().toLowerCase();
-  const users = await readUsers();
+  const users = readUsers();
   const account = users.find((u) => u.email === normalizedEmail);
 
   if (!account || account.password !== password) {
@@ -87,21 +85,21 @@ export async function localSignIn(
   }
 
   const session = { userId: account.id, email: account.email };
-  await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   return { error: null, session };
 }
 
-export async function getLocalDisplayName(userId: string): Promise<string | null> {
-  const users = await readUsers();
+export function getLocalDisplayName(userId: string): string | null {
+  const users = readUsers();
   return users.find((u) => u.id === userId)?.displayName ?? null;
 }
 
-export async function localResetPassword(
+export function localResetPassword(
   email: string,
   newPassword: string
-): Promise<{ error: string | null }> {
+): { error: string | null } {
   const normalizedEmail = email.trim().toLowerCase();
-  const users = await readUsers();
+  const users = readUsers();
   const account = users.find((u) => u.email === normalizedEmail);
 
   if (!account) {
@@ -112,6 +110,6 @@ export async function localResetPassword(
   }
 
   account.password = newPassword;
-  await writeUsers(users);
+  writeUsers(users);
   return { error: null };
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { UserProgress } from '../types';
 import { useAuth } from './AuthContext';
 import { loadProgress, persistProgress } from '../services/progressService';
@@ -40,27 +40,16 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-
-    let active = true;
     setLoading(true);
-    loadProgress(userId).then((data) => {
-      if (active) {
-        setProgress(data);
-        setLoading(false);
-      }
-    });
-    return () => {
-      active = false;
-    };
+    setProgress(loadProgress(userId));
+    setLoading(false);
   }, [userId]);
 
   const scheduleSave = useCallback(
     (next: UserProgress) => {
       if (!userId) return;
       if (saveTimer.current) clearTimeout(saveTimer.current);
-      saveTimer.current = setTimeout(() => {
-        persistProgress(userId, next);
-      }, 500);
+      saveTimer.current = setTimeout(() => persistProgress(userId, next), 300);
     },
     [userId]
   );

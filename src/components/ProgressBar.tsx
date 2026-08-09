@@ -1,61 +1,15 @@
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
-import { colors } from '../theme/colors';
-
-interface ProgressBarProps {
+export default function ProgressBar({
+  progress,
+  color = '#fff',
+  height = 8,
+}: {
   progress: number;
   color?: string;
   height?: number;
-  animated?: boolean;
-}
-
-export default function ProgressBar({
-  progress,
-  color = colors.primary,
-  height = 8,
-  animated = false,
-}: ProgressBarProps) {
-  const widthAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const target = Math.min(100, Math.max(0, progress));
-    if (animated) {
-      Animated.spring(widthAnim, {
-        toValue: target,
-        friction: 8,
-        tension: 40,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      widthAnim.setValue(target);
-    }
-  }, [progress, animated, widthAnim]);
-
-  const width = widthAnim.interpolate({
-    inputRange: [0, 100],
-    outputRange: ['0%', '100%'],
-  });
-
+}) {
   return (
-    <View style={[styles.track, { height }]}>
-      <Animated.View
-        style={[
-          styles.fill,
-          { width, backgroundColor: color, height },
-        ]}
-      />
-    </View>
+    <div className="progress-bar" style={{ height }}>
+      <div className="progress-bar-fill" style={{ width: `${Math.min(100, progress)}%`, background: color }} />
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  track: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 4,
-    overflow: 'hidden',
-    width: '100%',
-  },
-  fill: {
-    borderRadius: 4,
-  },
-});
