@@ -1,8 +1,10 @@
+import https from 'https';
 import 'dotenv/config';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { createServer as createViteServer } from 'vite';
 import { dispatchApi } from './handlers';
+import { getLocalHttpsCredentials } from './https';
 import type { ApiRequest, ApiResponse } from './types';
 
 const PORT = 3000;
@@ -47,8 +49,9 @@ async function startDevServer() {
 
   app.use(vite.middlewares);
 
-  app.listen(PORT, () => {
-    console.log(`LearnHub dev server running at http://localhost:${PORT}`);
+  const credentials = await getLocalHttpsCredentials();
+  https.createServer(credentials, app).listen(PORT, () => {
+    console.log(`LearnHub dev server running at https://localhost:${PORT}`);
   });
 }
 

@@ -11,11 +11,13 @@ cp .env.example .env
 npm run dev
 ```
 
-Open **http://localhost:3000** (required for the Ludwitt OAuth redirect URI).
+Open **https://localhost:3000** (local HTTPS dev server).
+
+The browser will warn about the self-signed certificate the first time — click **Advanced → Proceed to localhost** to continue.
 
 ## Ludwitt integration
 
-- OAuth callback: `http://localhost:3000/auth/callback`
+- OAuth callback: `https://localhost:3000/auth/callback`
 - Server routes under `/api/auth/*` and `/api/ludwitt/*` (token exchange stays server-side)
 - Offline Ludwitt docs live in `.ludwitt/` (gitignored; re-fetch from `https://pitchrise.ludwitt.com/docs/le/llms.txt`)
 

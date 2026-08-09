@@ -14,6 +14,9 @@ dist/
 # ludwitt offline docs (re-fetch with curl from llms.txt index)
 .ludwitt/
 
+# local https dev certs
+.cert/
+
 # debug
 npm-debug.*
 yarn-debug.*

@@ -1,6 +1,7 @@
 export const LUDWITT_CLIENT_ID = 'le_c4ad1bb389677060475555';
 export const LUDWITT_AUTHORIZE_URL = 'https://pitchrise.ludwitt.com/oauth/authorize';
-export const LUDWITT_REDIRECT_URI = 'http://localhost:3000/auth/callback';
+export const LUDWITT_REDIRECT_URI =
+  import.meta.env.VITE_LUDWITT_REDIRECT_URI ?? 'https://localhost:3000/auth/callback';
 export const LUDWITT_SCOPES = 'profile credits:read credits:spend';
 export const LUDWITT_TOP_UP_URL = 'https://pitchrise.ludwitt.com/account/credits';
 

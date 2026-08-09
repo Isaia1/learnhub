@@ -10,7 +10,7 @@ export const LUDWITT_AI_MESSAGES_URL = 'https://pitchrise.ludwitt.com/api/v1/ai/
 export const LUDWITT_SCOPES = 'profile credits:read credits:spend';
 
 export const REDIRECT_URI =
-  process.env.LUDWITT_REDIRECT_URI ?? 'http://localhost:3000/auth/callback';
+  process.env.LUDWITT_REDIRECT_URI ?? 'https://localhost:3000/auth/callback';
 
 export function getClientSecret(): string {
   const secret = process.env.LUDWITT_CLIENT_SECRET;
