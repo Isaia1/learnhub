@@ -5,6 +5,7 @@ import {
   getLocalSession,
   localSignIn,
   localSignUp,
+  localResetPassword,
 } from '../lib/localAuth';
 
 export interface AuthUser {
@@ -22,6 +23,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => { error: string | null };
   signUp: (email: string, password: string, displayName: string) => { error: string | null };
+  resetPassword: (email: string, newPassword: string) => { error: string | null; message?: string };
   signOut: () => void;
 }
 
@@ -63,8 +65,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   };
 
+  const resetPassword = (email: string, newPassword: string) => {
+    const { error } = localResetPassword(email, newPassword);
+    if (error) return { error };
+    return { error: null, message: 'Password updated! You can sign in with your new password.' };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, signIn, signUp, resetPassword, signOut }}>
       {children}
     </AuthContext.Provider>
   );

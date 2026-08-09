@@ -44,6 +44,10 @@ export default function LoginPage() {
             <input id="password" className="form-input" type="password" placeholder="Your password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
           </div>
 
+          <p style={{ textAlign: 'right', marginBottom: 16 }}>
+            <Link to="/forgot-password" className="btn-link">Forgot password?</Link>
+          </p>
+
           <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: 8 }}>
             {loading ? 'Signing in…' : 'Sign In'}
           </button>

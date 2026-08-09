@@ -6,6 +6,7 @@ import MainLayout from './layouts/MainLayout';
 import ProtectedRoute, { PublicOnlyRoute } from './layouts/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import HomePage from './pages/HomePage';
 import CoursesPage from './pages/CoursesPage';
 import ProgressPage from './pages/ProgressPage';
@@ -25,6 +26,7 @@ export default function App() {
               <Route element={<PublicOnlyRoute />}>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               </Route>
 
               <Route element={<ProtectedRoute />}>

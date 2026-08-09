@@ -93,3 +93,23 @@ export function getLocalDisplayName(userId: string): string | null {
   const users = readUsers();
   return users.find((u) => u.id === userId)?.displayName ?? null;
 }
+
+export function localResetPassword(
+  email: string,
+  newPassword: string
+): { error: string | null } {
+  const normalizedEmail = email.trim().toLowerCase();
+  const users = readUsers();
+  const account = users.find((u) => u.email === normalizedEmail);
+
+  if (!account) {
+    return { error: 'No account found with this email.' };
+  }
+  if (newPassword.length < 6) {
+    return { error: 'Password must be at least 6 characters.' };
+  }
+
+  account.password = newPassword;
+  writeUsers(users);
+  return { error: null };
+}

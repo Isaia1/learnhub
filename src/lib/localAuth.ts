@@ -95,3 +95,23 @@ export async function getLocalDisplayName(userId: string): Promise<string | null
   const users = await readUsers();
   return users.find((u) => u.id === userId)?.displayName ?? null;
 }
+
+export async function localResetPassword(
+  email: string,
+  newPassword: string
+): Promise<{ error: string | null }> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const users = await readUsers();
+  const account = users.find((u) => u.email === normalizedEmail);
+
+  if (!account) {
+    return { error: 'No account found with this email.' };
+  }
+  if (newPassword.length < 6) {
+    return { error: 'Password must be at least 6 characters.' };
+  }
+
+  account.password = newPassword;
+  await writeUsers(users);
+  return { error: null };
+}

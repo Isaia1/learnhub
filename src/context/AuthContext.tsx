@@ -8,6 +8,7 @@ import {
   getLocalSession,
   localSignIn,
   localSignUp,
+  localResetPassword,
 } from '../lib/localAuth';
 
 export interface AuthUser {
@@ -27,6 +28,7 @@ interface AuthContextType {
   usesCloudSync: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string, displayName: string) => Promise<{ error: string | null }>;
+  resetPassword: (email: string, newPassword: string) => Promise<{ error: string | null; message?: string }>;
   signOut: () => Promise<void>;
 }
 
@@ -160,6 +162,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
   };
 
+  const resetPassword = async (email: string, newPassword: string) => {
+    const supabase = getSupabase();
+
+    if (!supabase) {
+      const { error } = await localResetPassword(email, newPassword);
+      if (error) return { error };
+      return { error: null, message: 'Password updated! You can sign in with your new password.' };
+    }
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: 'learnhub://reset-password',
+      });
+      if (error) return { error: error.message };
+      return { error: null, message: 'Check your email for a password reset link.' };
+    } catch {
+      return { error: 'Could not reach the server. Check your internet and try again.' };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -170,6 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         usesCloudSync: isSupabaseConfigured,
         signIn,
         signUp,
+        resetPassword,
         signOut,
       }}
     >

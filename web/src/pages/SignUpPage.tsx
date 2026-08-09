@@ -67,6 +67,9 @@ export default function SignUpPage() {
           <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'rgba(255,255,255,0.78)' }}>
             Already have an account? <Link to="/login" className="btn-link">Sign In</Link>
           </p>
+          <p style={{ textAlign: 'center', marginTop: 12, fontSize: 14 }}>
+            <Link to="/forgot-password" className="btn-link">Forgot password?</Link>
+          </p>
         </form>
       </div>
     </>

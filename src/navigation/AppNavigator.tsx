@@ -18,6 +18,7 @@ import QuizScreen from '../screens/QuizScreen';
 import FlashcardsScreen from '../screens/FlashcardsScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import LoadingScreen from '../components/LoadingScreen';
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -69,6 +70,7 @@ function AuthNavigator() {
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="SignUp" component={SignUpScreen} />
+      <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </AuthStack.Navigator>
   );
 }

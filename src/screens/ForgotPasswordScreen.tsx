@@ -19,40 +19,51 @@ import AuthTextInput from '../components/AuthTextInput';
 import { AuthStackParamList } from '../navigation/types';
 
 type Props = {
-  navigation: NativeStackNavigationProp<AuthStackParamList, 'SignUp'>;
+  navigation: NativeStackNavigationProp<AuthStackParamList, 'ForgotPassword'>;
 };
 
-export default function SignUpScreen({ navigation }: Props) {
-  const { signUp, usesCloudSync } = useAuth();
-  const [displayName, setDisplayName] = useState('');
+export default function ForgotPasswordScreen({ navigation }: Props) {
+  const { resetPassword, usesCloudSync } = useAuth();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSignUp = async () => {
-    if (!displayName.trim() || !email.trim() || !password) {
-      setError('Please fill in all fields.');
+  const handleReset = async () => {
+    if (!email.trim()) {
+      setError('Please enter your email.');
       return;
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
+    if (!usesCloudSync) {
+      if (!newPassword || !confirmPassword) {
+        setError('Please enter and confirm your new password.');
+        return;
+      }
+      if (newPassword.length < 6) {
+        setError('Password must be at least 6 characters.');
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setError('Passwords do not match.');
+        return;
+      }
     }
+
     setError('');
     setSuccess('');
     setLoading(true);
-    const { error: signUpError } = await signUp(email.trim(), password, displayName.trim());
+    const { error: resetError, message } = await resetPassword(
+      email.trim(),
+      usesCloudSync ? '' : newPassword
+    );
     setLoading(false);
-    if (signUpError) {
-      setError(signUpError);
+
+    if (resetError) {
+      setError(resetError);
     } else {
-      setSuccess(
-        usesCloudSync
-          ? 'Account created! Check your email to confirm, then sign in.'
-          : 'Account created! You are signed in.'
-      );
+      setSuccess(message ?? 'Password reset successful.');
     }
   };
 
@@ -62,20 +73,17 @@ export default function SignUpScreen({ navigation }: Props) {
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <FadeInView><Logo size="sm" /></FadeInView>
           <FadeInView delay={100}>
-          <Text style={styles.heading}>Create account</Text>
-          <Text style={styles.subheading}>Start your learning journey today</Text>
+            <Text style={styles.heading}>Forgot password?</Text>
+            <Text style={styles.subheading}>
+              {usesCloudSync
+                ? 'Enter your email and we\'ll send you a reset link.'
+                : 'Enter your email and choose a new password.'}
+            </Text>
           </FadeInView>
 
           {error ? <Text style={styles.errorBanner}>{error}</Text> : null}
           {success ? <Text style={styles.successBanner}>{success}</Text> : null}
 
-          <AuthTextInput
-            label="Display Name"
-            value={displayName}
-            onChangeText={setDisplayName}
-            autoComplete="name"
-            placeholder="Your name"
-          />
           <AuthTextInput
             label="Email"
             value={email}
@@ -84,30 +92,40 @@ export default function SignUpScreen({ navigation }: Props) {
             autoComplete="email"
             placeholder="you@example.com"
           />
-          <AuthTextInput
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoComplete="new-password"
-            placeholder="At least 6 characters"
-          />
 
-          <TouchableOpacity style={styles.primaryButton} onPress={handleSignUp} disabled={loading}>
+          {!usesCloudSync && (
+            <>
+              <AuthTextInput
+                label="New Password"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry
+                autoComplete="new-password"
+                placeholder="At least 6 characters"
+              />
+              <AuthTextInput
+                label="Confirm Password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+                autoComplete="new-password"
+                placeholder="Re-enter your password"
+              />
+            </>
+          )}
+
+          <TouchableOpacity style={styles.primaryButton} onPress={handleReset} disabled={loading}>
             {loading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.primaryButtonText}>Create Account</Text>
+              <Text style={styles.primaryButtonText}>
+                {usesCloudSync ? 'Send Reset Link' : 'Reset Password'}
+              </Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.linkRow}>
-            <Text style={styles.linkText}>Already have an account? </Text>
-            <Text style={styles.linkAction}>Sign In</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotRow}>
-            <Text style={styles.linkAction}>Forgot password?</Text>
+            <Text style={styles.linkAction}>Back to Sign In</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -116,13 +134,8 @@ export default function SignUpScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  content: {
-    padding: 24,
-    paddingTop: 32,
-  },
+  flex: { flex: 1 },
+  content: { padding: 24, paddingTop: 48 },
   heading: {
     fontSize: 26,
     fontWeight: '800',
@@ -174,18 +187,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 24,
   },
-  linkText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
   linkAction: {
     fontSize: 14,
     fontWeight: '700',
     color: colors.primaryLight,
-  },
-  forgotRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 12,
   },
 });

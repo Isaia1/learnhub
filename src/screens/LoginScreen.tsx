@@ -72,6 +72,10 @@ export default function LoginScreen({ navigation }: Props) {
             placeholder="Your password"
           />
 
+          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotRow}>
+            <Text style={styles.linkAction}>Forgot password?</Text>
+          </TouchableOpacity>
+
           <FadeInView delay={200}>
           <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} disabled={loading}>
             {loading ? (
@@ -150,5 +154,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: colors.primaryLight,
+  },
+  forgotRow: {
+    alignSelf: 'flex-end',
+    marginTop: -8,
+    marginBottom: 8,
   },
 });
