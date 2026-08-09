@@ -4,6 +4,7 @@ import { CoursesProvider } from './context/CoursesContext';
 import { ProgressProvider } from './context/ProgressContext';
 import MainLayout from './layouts/MainLayout';
 import ProtectedRoute, { PublicOnlyRoute } from './layouts/ProtectedRoute';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -23,6 +24,8 @@ export default function App() {
         <CoursesProvider>
           <ProgressProvider>
             <Routes>
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
+
               <Route element={<PublicOnlyRoute />}>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUpPage />} />

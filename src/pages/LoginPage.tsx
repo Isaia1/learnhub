@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppBackground from '../components/AppBackground';
 import Logo from '../components/Logo';
+import LudwittSignInButton from '../components/LudwittSignInButton';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
@@ -51,6 +52,14 @@ export default function LoginPage() {
           <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: 8 }}>
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0 8px' }}>
+            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.2)' }} />
+            <span className="subtitle" style={{ fontSize: 13 }}>or</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.2)' }} />
+          </div>
+
+          <LudwittSignInButton />
 
           <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'rgba(255,255,255,0.78)' }}>
             Don&apos;t have an account? <Link to="/signup" className="btn-link">Sign Up</Link>

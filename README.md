@@ -1,15 +1,30 @@
 # LearnHub
 
-A learning website — courses, lessons, quizzes, flashcards, and progress tracking with XP and streaks.
+A learning website — courses, lessons, quizzes, flashcards, and progress tracking with XP and streaks. Supports **Sign in with Ludwitt** (OAuth + PKCE) and AI tutoring powered by Ludwitt credits.
 
 ## Run locally
 
 ```bash
 npm install
+cp .env.example .env
+# Add LUDWITT_CLIENT_SECRET and SESSION_SECRET to .env
 npm run dev
 ```
 
-Open **http://localhost:5173**
+Open **http://localhost:3000** (required for the Ludwitt OAuth redirect URI).
+
+## Ludwitt integration
+
+- OAuth callback: `http://localhost:3000/auth/callback`
+- Server routes under `/api/auth/*` and `/api/ludwitt/*` (token exchange stays server-side)
+- Offline Ludwitt docs live in `.ludwitt/` (gitignored; re-fetch from `https://pitchrise.ludwitt.com/docs/le/llms.txt`)
+
+Set these in `.env` for local dev and in Vercel **Environment Variables** for production:
+
+| Variable | Purpose |
+|---|---|
+| `LUDWITT_CLIENT_SECRET` | Server-only OAuth client secret |
+| `SESSION_SECRET` | Encrypts Ludwitt session cookies |
 
 ## Build for production
 
@@ -21,18 +36,15 @@ npm run preview
 ## Deploy to Vercel
 
 1. Import [github.com/Isaia1/learnhub](https://github.com/Isaia1/learnhub) on [vercel.com](https://vercel.com)
-2. **Root Directory:** leave as `.` (repo root — no subfolder needed)
+2. **Root Directory:** `.` (repo root)
 3. **Framework:** Vite · **Build:** `npm run build` · **Output:** `dist`
-4. Deploy
-
-Or from the terminal:
-
-```bash
-npx vercel --prod
-```
+4. Add `LUDWITT_CLIENT_SECRET` and `SESSION_SECRET` env vars
+5. Deploy
 
 ## Features
 
-- Sign up / sign in (saved in browser localStorage)
+- Local sign up / sign in (browser localStorage) or Ludwitt OAuth
+- Ludwitt spendable credit balance on Profile
+- AI Tutor on lesson pages (Ludwitt users)
 - 4 courses with lessons, quizzes, and flashcards
 - XP, streaks, and per-course progress

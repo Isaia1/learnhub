@@ -11,6 +11,9 @@ dist/
 # expo (legacy local cache)
 .expo/
 
+# ludwitt offline docs (re-fetch with curl from llms.txt index)
+.ludwitt/
+
 # debug
 npm-debug.*
 yarn-debug.*

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { IoArrowBack, IoArrowForward, IoCheckmarkCircle } from 'react-icons/io5';
+import AiTutorPanel from '../components/AiTutorPanel';
 import { useCourses } from '../context/CoursesContext';
 import { useProgress } from '../context/ProgressContext';
 
@@ -52,6 +53,7 @@ export default function LessonPage() {
         </div>
         <h1 className="h1 fade-in" style={{ lineHeight: 1.3, marginBottom: 24 }}>{lesson.title}</h1>
         <div className="fade-in" style={{ fontSize: 16, lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>{lesson.content}</div>
+        <AiTutorPanel courseTitle={course.title} lessonTitle={lesson.title} />
       </div>
 
       <div className="sticky-footer">
